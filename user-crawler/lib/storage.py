@@ -101,11 +101,14 @@ class Storage:
             count = 0
             for following in followings:
                 cursor.execute("""
-                REPLACE INTO users(id, raw_data, retrieved_at)
+                INSERT INTO users(id, raw_data, retrieved_at)
                 VALUES (?, ?, ?)
+                ON CONFLICT (id)
+                DO UPDATE SET raw_data = ?
                 """, (following['id'],
                       json.dumps(following),
-                      datetime.now()))
+                      datetime.now(),
+                      json.dumps(following)))
 
                 cursor.execute("""
                 INSERT INTO followings(src, dest, retrieved_at)
