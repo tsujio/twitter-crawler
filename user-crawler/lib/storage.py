@@ -91,7 +91,7 @@ class Storage:
             cursor.execute("""
             REPLACE INTO users(id, raw_data, retrieved_at)
             VALUES (?, ?, ?)
-            """, (user['id'], json.dumps(user), datetime.now()))
+            """, (user['id'], json.dumps(user), datetime.utcnow()))
 
             cursor.execute("""
             DELETE FROM followings
@@ -107,7 +107,7 @@ class Storage:
                 DO UPDATE SET raw_data = ?
                 """, (following['id'],
                       json.dumps(following),
-                      datetime.now(),
+                      datetime.utcnow(),
                       json.dumps(following)))
 
                 cursor.execute("""
@@ -115,7 +115,7 @@ class Storage:
                 VALUES (?, ?, ?)
                 """, (user['id'],
                       following['id'],
-                      datetime.now()))
+                      datetime.utcnow()))
 
                 count += 1
 
@@ -123,7 +123,7 @@ class Storage:
             cursor.execute("""
             UPDATE users SET retrieved_at = ?
             WHERE id = ?
-            """, (datetime.now(), user['id']))
+            """, (datetime.utcnow(), user['id']))
 
         logging.info(f"{count} records inserted")
 
@@ -134,7 +134,7 @@ class Storage:
             VALUES (?,
                     (SELECT COUNT(*) FROM users),
                     (SELECT COUNT(*) FROM followings))
-            """, (datetime.now(),))
+            """, (datetime.utcnow(),))
 
         with open_db(self.data_dir) as cursor:
             cursor.execute("""
