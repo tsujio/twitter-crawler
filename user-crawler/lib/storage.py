@@ -44,6 +44,11 @@ class Storage:
             """)
 
             cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_users__retrieved_at
+            ON users(retrieved_at)
+            """)
+
+            cursor.execute("""
             CREATE TABLE IF NOT EXISTS followings (
                 src TEXT NOT NULL,
                 dest TEXT NOT NULL,
@@ -73,7 +78,7 @@ class Storage:
             cursor.execute("""
             SELECT raw_data FROM users
             WHERE JSON_EXTRACT(raw_data, '$.protected') = 0
-            ORDER BY RANDOM()
+            ORDER BY retrieved_at ASC, RANDOM()
             LIMIT 1
             """)
 
@@ -111,7 +116,13 @@ class Storage:
 
                 count += 1
 
-            logging.info(f"{count} records inserted")
+            # Update timestamp to put this user to the tail of crawling queue
+            cursor.execute("""
+            UPDATE users SET retrieved_at = ?
+            WHERE id = ?
+            """, (datetime.now(), user['id']))
+
+        logging.info(f"{count} records inserted")
 
     def save_stats(self):
         with open_db(self.data_dir) as cursor:
@@ -122,6 +133,7 @@ class Storage:
                     (SELECT COUNT(*) FROM followings))
             """, (datetime.now(),))
 
+        with open_db(self.data_dir) as cursor:
             cursor.execute("""
             SELECT timestamp, user_count, following_count
             FROM stats
