@@ -71,7 +71,7 @@ class Storage:
     def select_user(self):
         with open_db(self.data_dir) as cursor:
             cursor.execute("""
-            SELECT id FROM users
+            SELECT raw_data FROM users
             WHERE JSON_EXTRACT(raw_data, '$.protected') = 0
             ORDER BY RANDOM()
             LIMIT 1
