@@ -32,12 +32,19 @@ def main():
 
         user = storage.select_user()
 
-        if not user:
+        if user:
+            username = user['username']
+        else:
             if len(sys.argv) < 2:
                 raise Exception(f"Usage: {sys.argv[0]} [INITIAL_USERNAME]")
-            user = twitter.get_user_by_name(sys.argv[1])
+            username = sys.argv[1]
 
-        followings = twitter.get_followings(user['id'])
+        user = twitter.get_user_by_name(username)
+
+        if user['protected']:
+            followings = []
+        else:
+            followings = twitter.get_followings(user['id'])
 
         storage.save_followings(user, followings)
 
