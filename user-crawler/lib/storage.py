@@ -77,7 +77,6 @@ class Storage:
         with open_db(self.data_dir) as cursor:
             cursor.execute("""
             SELECT raw_data FROM users
-            WHERE JSON_EXTRACT(raw_data, '$.protected') = 0
             ORDER BY retrieved_at ASC, RANDOM()
             LIMIT 1
             """)
