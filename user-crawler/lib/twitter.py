@@ -10,6 +10,8 @@ API_RETRY_MAX = 15
 
 class Twitter:
 
+    ERROR_NOT_FOUND = 'https://api.twitter.com/2/problems/resource-not-found'
+
     def __init__(self, data_dir):
         self.data_dir = data_dir
 
@@ -66,6 +68,10 @@ class Twitter:
         }
 
         data = self.call_api(url, params)
+
+        if any(e['type'] == self.ERROR_NOT_FOUND
+               for e in data.get('errors', [])):
+            return None
 
         return data['data']
 

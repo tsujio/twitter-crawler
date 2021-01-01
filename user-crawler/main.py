@@ -39,18 +39,20 @@ def main():
                 raise Exception(f"Usage: {sys.argv[0]} [INITIAL_USERNAME]")
             username = sys.argv[1]
 
-        user = twitter.get_user_by_name(username)
+        _user = twitter.get_user_by_name(username)
 
-        if user['protected']:
-            followings = []
+        if not _user:
+            storage.delete_user(user)
         else:
-            followings = twitter.get_followings(user['id'])
+            user = _user
+            if user['protected']:
+                followings = []
+            else:
+                followings = twitter.get_followings(user['id'])
 
-        storage.save_followings(user, followings)
+            storage.save_followings(user, followings)
 
         # TODO: retrieve and save followers
-
-        # TODO: delete nonexistent users
 
         storage.save_stats()
     except Exception as e:

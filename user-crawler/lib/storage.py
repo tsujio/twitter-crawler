@@ -126,6 +126,20 @@ class Storage:
 
         logging.info(f"{count} records inserted")
 
+    def delete_user(self, user):
+        with open_db(self.data_dir) as cursor:
+            cursor.execute("""
+            DELETE FROM followings
+            WHERE src = ? OR dest = ?
+            """, (user['id'], user['id']))
+
+            cursor.execute("""
+            DELETE FROM users
+            WHERE id = ?
+            """, (user['id'],))
+
+        logging.info(f"deleted user: {user}")
+
     def save_stats(self):
         with open_db(self.data_dir) as cursor:
             cursor.execute("""
